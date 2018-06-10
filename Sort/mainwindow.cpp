@@ -38,7 +38,36 @@ void selectSort(QVector<int> &array) {
     }
 }
 
-void quickSort(QVector<int> &array) {
+void swap(int &a, int &b) {
+    int temp = a;
+    a = b;
+    b = temp;
+}
+
+void quickSort(QVector<int> &array, int left, int right) {
+    if (!array.size()) { return; }
+    if (right <= left) { return; }
+
+    int i = left + 1;
+    int j = right;
+    int compared = array[left];
+    while (i < j) {
+        while(array[j] > compared && i < j) {
+            --j;
+        }
+        while(array[i] < compared && i < j) {
+            ++i;
+        }
+        if (i != j) {
+            swap(array[i], array[j]);
+        }
+    }
+
+    if (i == j) {
+        swap(array[i], array[left]);
+    }
+    quickSort(array, left, i - 1);
+    quickSort(array, i + 1, right);
 
 }
 
@@ -57,6 +86,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    selectSort(array);
+    quickSort(array, 0, array.size() - 1);
     qDebug() << "end";
 }
