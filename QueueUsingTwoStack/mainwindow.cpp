@@ -3,7 +3,8 @@
 #include <QStack>
 #include <QDebug>
 
-template <typename T> class CQueue {
+// 类似的问题还有, 用两个队列, 模拟一个栈.也是用的互相倒腾的办法. 只不过两个队列模拟栈每次都要倒腾.
+template<typename T> class CQueue {
 public:
     void append(const T& node);
     T deleteHead();
