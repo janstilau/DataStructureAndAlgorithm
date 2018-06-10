@@ -16,6 +16,22 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+int fabonaArray(int n) {
+    int adder = 1;
+    int addAnother = 1;
+
+    if (n <= 1) { return 1;}
+
+    int fn;
+    for (int i = 2; i <= n; ++i ){
+        fn = adder + addAnother;
+        adder = addAnother;
+        addAnother = fn;
+    }
+
+    return fn;
+}
+
 int findMinIterately(const vector<int> &array) {
     int n = array.size();
     if (!n) { return -1; }
