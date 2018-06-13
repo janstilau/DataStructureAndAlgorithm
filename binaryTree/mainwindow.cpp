@@ -36,6 +36,10 @@ void recurseLRM(Node *root) {
     handleNode(root);
 }
 
+// 访问节点, 就是出栈的时候
+// 访问一个节点之后, 先入栈 right, 然后入栈 left
+// 访问下一个节点, 就是出栈 top 的过程, 所以先处理 right, 在处理完 right 只有, 就是处理 right 为根节点的树.
+// left 节点只有在 right 树处理完之后才会处理.
 void iterateMLR(Node *root) {
     QStack<Node *> stack;
     stack.push(root);
@@ -51,33 +55,49 @@ void iterateMLR(Node *root) {
     }
 }
 
-void pushStackLMR(Node *node, QStack<Node *> &stack) {
-    if (!node) { return; }
-    pushStackLMR(node->left, stack);
-    stack.push_back(node);
-    pushStackLMR(node->right, stack);
-}
-
+// 一个节点, 如果有 left 那么 left 就要一直入栈,
+// 当一个节点没有 left 的时候, 就该访问这个节点, 然后入栈这个节点的 right
+// right 节点入栈之后, 也是一直入栈 left, 直到没有 left 才会访问这个节点, 也就是说, 先入栈, 然后在没有 left 的时候出栈并且操作.
 void iterateLMR(Node *root) {
     QStack<Node *> stack;
-    pushStackLMR(root, stack);
-    while(!stack.isEmpty()) {
-        handleNode(stack.pop());
+    Node *current = root;
+    while (current || !stack.isEmpty()) {
+        if (current) {
+            stack.push_back(current);
+            current = current->left;
+            continue;
+        }
+        current = stack.pop();
+        handleNode(current);
+        current = current->right;
     }
+
 }
 
+// 可以这样理解, 这是一个埋点的过程, 最后会处理的埋到 stackResult 的最后面
+// 首先是 root 节点, root 节点最后会被处理, 所以弹出后埋到了 stackResult 的最后面
+// 然后 root 节点的两个子节点, right 会被后处理, 所以先被埋到 stackResult 里面
+// 然后是埋整个 right 子树的过程, 当 right 子树都被埋进 result 之后, 才处理 left 子树
+// stackStash 的逻辑其实是和 MLR 是相同的, 只不过这个处理是埋点.
 void iterateLRM(Node *root) {
-    QStack<Node *> stack;
-    stack.push(root);
-    while(!stack.isEmpty()) {
-        Node *current = stack.pop();
-        handleNode(current);
-        if (current->right) {
-            stack.push_back(current->right);
-        }
+    QStack<Node *> stackStash;
+    QStack<Node *> stackResult;
+
+    stackStash.push_back(root);
+    while (!stackStash.isEmpty()) {
+        Node *current = stackStash.pop();
         if (current->left) {
-            stack.push_back(current->left);
+            stackStash.push_back(current->left);
         }
+        if (current->right) {
+            stackStash.push_back(current->right);
+        }
+        stackResult.push_back(current);
+    }
+
+    while (!stackResult.isEmpty()) {
+        Node *current = stackResult.pop();
+        handleNode(current);
     }
 }
 
@@ -136,11 +156,14 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
     Node* root = createTree(0, preOrder.length() - 1, 0, inOrder.length() - 1);
-    recurseMLR(root);
+//    recurseMLR(root);
+//    qDebug() << "";
+//    recurseLMR(root);
+//    qDebug() << "";
+//    recurseLRM(root);
+    iterateMLR(root);
     qDebug() << "";
-    recurseLMR(root);
+    iterateLMR(root);
     qDebug() << "";
-    recurseLRM(root);
-
-
+    iterateLRM(root);
 }
