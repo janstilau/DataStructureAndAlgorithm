@@ -79,7 +79,7 @@ void iterateLMR(Node *root) {
 // 然后 root 节点的两个子节点, right 会被后处理, 所以先被埋到 stackResult 里面
 // 然后是埋整个 right 子树的过程, 当 right 子树都被埋进 result 之后, 才处理 left 子树
 // stackStash 的逻辑其实是和 MLR 是相同的, 只不过这个处理是埋点.
-void iterateLRM(Node *root) {
+QStack<Node *> iterateLRM(Node *root) {
     QStack<Node *> stackStash;
     QStack<Node *> stackResult;
 
@@ -99,6 +99,39 @@ void iterateLRM(Node *root) {
         Node *current = stackResult.pop();
         handleNode(current);
     }
+    return stackResult;
+}
+
+bool equal(Node *node, Node *another) {
+    if (!node) { return false; }
+    if (!another) { return true; }
+    if (node->data != another->data) {
+        return false;
+    }
+    if (!equal(node->left, another->left)) {
+        return false;
+    }
+    if (!equal(node->right, another->right)) {
+        return false;
+    }
+
+    return true;
+}
+
+bool fildSubTree(Node *root, Node *subRoot) {
+    if (!root || !subRoot) { return false; }
+
+    bool result = true;
+    QStack<Node *> stack = iterateLRM(root);
+    while (!stack.isEmpty()) {
+        Node *node = stack.pop();
+        if (node->data != subRoot->data) { continue; }
+        if (equal(node, subRoot)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 QVector<int> preOrder = {1, 2, 4, 7, 3, 5, 6, 8};
