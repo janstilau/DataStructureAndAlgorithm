@@ -3,6 +3,11 @@
 #include <QStack>
 #include <QVector>
 #include <QDebug>
+#include <queue>
+#include <stack>
+#include <vector>
+
+using namespace std;
 
 struct Node
 {
@@ -10,6 +15,198 @@ struct Node
     Node *left;
     Node *right;
 };
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+struct Level
+{
+    TreeNode *mNode;
+    int mLevel;
+    Level(TreeNode *node, int level) {this->mNode = node; this->mLevel = level;}
+};
+
+vector<Level> iterateTree(TreeNode *root) {
+    vector<Level> array;
+    if (!root) { return array; }
+    queue<Level> stash;
+    stash.push(Level(root, 1));
+    while(stash.size()) {
+        const Level &node = stash.front();
+        stash.pop();
+        array.push_back(node);
+        if (node.mNode->left) {
+           stash.push(Level(node.mNode->left, node.mLevel + 1));
+        }
+        if (node.mNode->right) {
+           stash.push(Level(node.mNode->right, node.mLevel + 1));
+        }
+    }
+
+    return array;
+}
+
+vector<vector<int>> levelOrder(TreeNode* root) {
+    auto array = iterateTree(root);
+    vector<vector<int>> result;
+    vector<int> subArray;
+    int currentLevel = -1;
+    for (int i = 0; i < array.size(); ++i) {
+        Level item = array[i];
+        if (item.mLevel != currentLevel) {
+            currentLevel = item.mLevel;
+            if (subArray.size()) {
+                result.push_back(subArray);
+                subArray.clear();
+            }
+        }
+        subArray.push_back(item.mNode->val);
+    }
+    if (subArray.size()) {
+        result.push_back(subArray);
+    }
+
+    return result;
+}
+
+int maxDepth(TreeNode* root) {
+    auto array = iterateTree(root);
+    if (!array.size()) {return 0;}
+    auto &level =  array[array.size() - 1];
+    return level.mLevel;
+}
+
+//void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
+//    vector<int> stash = nums1;
+//    int i, j;
+//    for (i = 0, j = 0; i < m && j < n; ++i, ++j) {
+
+//    }
+//    int index = 0;
+//    while (i < m && j < n) {
+//        if (nums1[i] < nums2[j]) {
+//            m[index++] = nums1[i];
+//            ++i;
+//        } else {
+//            m[index++] = nums1[j];
+//            ++j;
+//        }
+//    }
+
+//    while (i < m) {
+//        m[index++] = nums1[i];
+//        ++i;
+//    }
+
+//    while (j < n) {
+//        m[index++] = nums1[j];
+//        ++j;
+//    }
+//}
+bool isBadVersion(int version){
+    if (version == 1702766719) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+int firstBadVersion(int n) {
+    long
+    int left = 1;
+    int right = n;
+    int middle = (left + right) / 2;
+    int times = 0;
+    while (left < right) {
+        middle = (left + right) / 2;
+        if (isBadVersion(middle)) {
+            right = middle - 1;
+        } else {
+            left = middle + 1;
+        }
+        qDebug() << middle;
+//        qDebug() << times++;
+    }
+    int miner = middle < right? middle: right;
+    int maxer = middle < right? right: middle;
+    if(isBadVersion(miner)) {
+        return miner;
+    } else {
+        return maxer;
+    }
+    }
+
+bool check(vector<TreeNode *> &array) {
+    if (array.size() & 0x01) {
+        return false;
+    }
+
+    for (int i = 0, j = array.size() - 1; i < j; ++i, --j) {
+        if ((array[i] && array[j]) && (array[i]->val == array[j]->val)) {
+            continue;
+        }
+        if (!array[i] && !array[j]) {
+            continue;
+        }
+        return false;
+    }
+
+    return true;
+}
+
+bool isSymmetric(TreeNode* root) {
+    if (!root) { return false; }
+
+    int nodeCount = 0;
+    vector<TreeNode *> array;
+    array.push_back(root);
+    ++nodeCount;
+    while(nodeCount) {
+        if (array.size() != 1) {
+            if (!check(array)) {
+                return false;
+            }
+        }
+
+        nodeCount = 0;
+        int currentSize = array.size();
+        while (array.size() != currentSize * 2) {
+           array.push_back(NULL);
+        }
+        for (int i = currentSize - 1; i >=0; --i) {
+            if (!array[i]) {
+                array[2 * i + 1] = array[i];
+                array[2 * i] = array[i];
+                continue;
+            }
+            if (array[i]->right) { ++nodeCount; }
+            array[2 * i + 1] = array[i]->right;
+            if (array[i]->left) { ++nodeCount; }
+            array[2 * i] = array[i]->left;
+
+        }
+    }
+
+    return true;
+}
+
+bool compare(TreeNode *left, TreeNode *right) {
+    if (!left && !right) { return true; }
+    if (left || right) { return false; }
+    return (left->val == right->val) && (compare(left->left, right->right)) && (compare(left->right, right->left));
+}
+
+bool isSymmetric_(TreeNode* root) {
+    if(!root) {
+        return true;
+    }
+
+    return compare(root->left, root->right);
+}
 
 void handleNode(Node *node) {
     qDebug() << node->data;
@@ -102,37 +299,121 @@ QStack<Node *> iterateLRM(Node *root) {
     return stackResult;
 }
 
-bool equal(Node *node, Node *another) {
-    if (!node) { return false; }
-    if (!another) { return true; }
-    if (node->data != another->data) {
-        return false;
+struct ListNode {
+  int val;
+  ListNode *next;
+  ListNode(int x) : val(x), next(NULL) {}
+};
+
+// in place
+ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+    if (!l1) { return l2; }
+    if (!l2) { return l1; }
+    ListNode *current = NULL;
+    ListNode *another = NULL;
+    ListNode *mergeHead = NULL;
+
+    if (l1->val < l2->val) {
+        mergeHead = l1;
+        current = l1;
+        another = l2;
+    } else {
+        mergeHead = l2;
+        current = l2;
+        another = l1;
     }
-    if (!equal(node->left, another->left)) {
-        return false;
+
+    while(another && current) {
+        ListNode *next = current->next;
+        if (!next) {
+            current->next = another;
+            break;
+        }
+        if (next->val < another->val) {
+            current = current->next;
+        } else {
+            ListNode *anotherNext = another->next;
+            another->next = current->next;
+            current->next = another;
+            another = anotherNext;
+        }
     }
-    if (!equal(node->right, another->right)) {
-        return false;
+
+    return mergeHead;
+}
+
+bool isPalindrome(ListNode* head) {
+    if(!head) { return false;}
+    int length = 0;
+    for(ListNode *iter = head; iter; iter = iter->next) {
+        ++length;
+    }
+    int step = length/2;
+    bool isOdd = length & 0x01;
+    ListNode *advanceNode = head;
+    stack<int> stack;
+    while (step--) {
+       stack.push(advanceNode->val);
+       advanceNode = advanceNode->next;
+    }
+    if(isOdd) {
+        advanceNode = advanceNode->next;
+    }
+
+
+    for (; advanceNode; advanceNode = advanceNode->next) {
+        int value = stack.top();
+        stack.pop();
+        if (value != advanceNode->val) {
+            return false;
+        }
     }
 
     return true;
 }
 
-bool fildSubTree(Node *root, Node *subRoot) {
-    if (!root || !subRoot) { return false; }
-
-    bool result = true;
-    QStack<Node *> stack = iterateLRM(root);
-    while (!stack.isEmpty()) {
-        Node *node = stack.pop();
-        if (node->data != subRoot->data) { continue; }
-        if (equal(node, subRoot)) {
-            return true;
-        }
+bool hasCycle(ListNode *head) {
+    if (!head) { return false;}
+    ListNode *stash = head;
+    head = head->next;
+    while (head) {
+        if (head == stash) { return true;}
     }
-
     return false;
 }
+
+//bool equal(Node *node, Node *another) {
+//    boolean flag=false;
+//    ListNode *fast=head;
+//    ListNode *slow=head;
+//    while(true){
+//        if(fast==null||fast->next==null)
+//            return false;
+//        slow=slow->next;
+//        fast=fast->next->next;
+//        if(fast==slow){
+//            flag=true;
+//            break;
+//        }
+//    }
+//    return flag;
+//}
+
+//bool fildSubTree(Node *root, Node *subRoot) {
+//    if (!root || !subRoot) { return false; }
+
+//    bool result = true;
+//    QStack<Node *> stack = iterateLRM(root);
+//    while (!stack.isEmpty()) {
+//        Node *node = stack.pop();
+//        if (node->data != subRoot->data) { continue; }
+//        if (equal(node, subRoot)) {
+//            return true;
+//        }
+//    }
+
+//    return false;
+//}
 
 QVector<int> preOrder = {1, 2, 4, 7, 3, 5, 6, 8};
 QVector<int> inOrder= {4, 7, 2, 1, 5, 3, 8, 6};
@@ -188,15 +469,5 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    Node* root = createTree(0, preOrder.length() - 1, 0, inOrder.length() - 1);
-//    recurseMLR(root);
-//    qDebug() << "";
-//    recurseLMR(root);
-//    qDebug() << "";
-//    recurseLRM(root);
-    iterateMLR(root);
-    qDebug() << "";
-    iterateLMR(root);
-    qDebug() << "";
-    iterateLRM(root);
+    firstBadVersion(2126753390);
 }
