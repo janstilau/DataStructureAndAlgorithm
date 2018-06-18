@@ -455,6 +455,48 @@ Node *createTree(int preStart, int preEnd, int inStart, int inEnd) {
     return middleNode;
 }
 
+// 向一颗二叉搜索树, 插入一个新的结点
+Node *insertSearchNode(int data, Node* rootNode) {
+
+    if (!rootNode) {
+        rootNode = new Node();
+        rootNode->data = data;
+    } else {
+        if (data < rootNode->data) {
+            rootNode->left = insertSearchNode(data, rootNode->left);
+        } else {
+            rootNode->right = insertSearchNode(data, rootNode->right)
+        }
+
+    }
+    return rootNode;
+}
+
+Node *findSearchNodeRecurisely(int data, Node* rootNode) {
+
+    if (data == rootNode->data) {
+        return rootNode;
+    } else if (data > rootNode->data) {
+        return findSearchNode(data, rootNode->right);
+    } else {
+        return findSearchNode(data, rootNode->left);
+    }
+}
+
+Node *findSearchNodeIteratively(int data, Node *rootNode) {
+    if (!rootNode) { return NULL;}
+    while (rootNode) {
+        if (rootNode->data == data) {
+            return rootNode;
+        } else if (rootNode->data > data) {
+            rootNode = rootNode->right;
+        } else {
+            rootNode = rootNode->left;
+        }
+    }
+    return NULL;
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
