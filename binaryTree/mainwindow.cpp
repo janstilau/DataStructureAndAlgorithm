@@ -305,6 +305,43 @@ struct ListNode {
   ListNode(int x) : val(x), next(NULL) {}
 };
 
+int sum(ListNode* l1, ListNode* l2) {
+
+    int factor = 1;
+    int addend = 0;
+    int sum = 0;
+    while(l1 && l2) {
+        int digitSum = l1->val + l2->val + addend;
+        addend = digitSum > 10? 1 : 0;
+        sum += factor * digitSum;
+        factor *= 10;
+        l1 = l1->next;
+        l2 = l2->next;
+    }
+
+    return sum;
+}
+
+ListNode *numToList(int num) {
+
+    int digit = num % 10;
+    num /= 10;
+    ListNode *head = new ListNode(digit);
+    ListNode *current = head;
+    while (num) {
+        digit = num % 10;
+        num /= 10;
+        ListNode *digitNode = new ListNode(digit);
+        current->next = digitNode;
+    }
+    return head;
+}
+
+ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+    int num = this->sum(l1, l2);
+           return this->numToList(num);
+}
+
 // in place
 ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
     if (!l1) { return l2; }
@@ -511,5 +548,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    firstBadVersion(2126753390);
+    ListNode *node = new ListNode(2);
+    node->next = new ListNode(4);
+    node->next->next = new ListNode(3);
+
+    ListNode *another = new ListNode(5);
+    another->next = new ListNode(6);
+    another->next->next = new ListNode(4);
+
+    addTwoNumbers(node, another);
 }
